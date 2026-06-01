@@ -150,17 +150,12 @@ export class OrderServiceService {
     })
 
 
-
-
-
-    
-
     if(!newMarketOrder){
         throw  new ConflictException('Error in creating market order to DB')
     }
     
     
-    // publishToRedis();
+    // publishToRedis(); #TODO
 
 
   }

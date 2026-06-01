@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import Redis from "ioredis";
 import { WebSocket } from 'ws'
-import { RedisService } from "../redis/redis.service";
+import { RedisService } from "../../common/redis/redis.service";
 
 @Injectable()
 export class MarketDataService implements OnModuleInit {

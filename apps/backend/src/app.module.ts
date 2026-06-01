@@ -11,9 +11,10 @@ import { PrismaModule } from './prisma/prisma.module';
 
 import { MarketServiceModule } from './market-service/market-service.module';
 import { CacheService } from './market-service/cache/price-cache.service';
+import { RedisModule } from './common/redis/redis.module';
 
 @Module({
-  imports: [PrismaModule, AuthServiceModule, WalletServiceModule, OrderServiceModule, PositionServiceModule, TradeServiceModule, MarketServiceModule],
+  imports: [PrismaModule, AuthServiceModule, WalletServiceModule, OrderServiceModule, PositionServiceModule, TradeServiceModule, MarketServiceModule, RedisModule],
   controllers: [AppController],
   providers: [AppService],
 })

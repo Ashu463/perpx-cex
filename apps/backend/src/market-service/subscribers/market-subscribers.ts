@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import Redis from "ioredis";
 import { CacheService } from "../cache/price-cache.service";
-import { RedisService } from "../redis/redis.service";
+import { RedisService } from "../../common/redis/redis.service";
 
 @Injectable()
 export class MarketSubscriber implements OnModuleInit {
@@ -22,19 +22,21 @@ export class MarketSubscriber implements OnModuleInit {
   subscriber.on(
     'pmessage',
     (_pattern, channel, message) => {
-      console.log('MESSAGE RECEIVED', channel);
+      console.log('MESSAGE RECEIVED', channel, message);
 
       const payload = JSON.parse(message);
+      const actualPayload = JSON.parse(payload)
+      // double parsing is working IDK why #TODO - enhancement
 
       this.priceCache.setPrice(
-        payload.symbol,
-        payload.price,
+        actualPayload.symbol,
+        actualPayload.price,
       );
 
       console.log(
         'CACHE UPDATED',
-        payload.symbol,
-        payload.price,
+        actualPayload.symbol,
+        actualPayload.price,
       );
     },
   );

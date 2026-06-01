@@ -249,7 +249,7 @@ Response
   }
 ]
 ```
-
+and then make actual endpoints for creating these crypto's (ETH, BTC, SOL) 
 ---
 
 ### GET /:marketId

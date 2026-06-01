@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model User {
+  id String @unique @id
+  username String @unique
+  password String
+  email String
+  wallet Wallet?
+  orders Order[]
+  positions Position[]
+  createdAt DateTime
+  updatedAt DateTime
+  isActive Boolean
+}
+model Market{
+  id String @id @default(cuid())
+  marketName String
+  symbol String
+  estimatedLiquidationPrice Decimal
+  initialMargin Decimal
+  maintainenceMargin Decimal
+  indexPrice Decimal
+  markPrice Decimal
+  lastPrice Decimal
+  // orders Order[] 
+  positions Position[]
+  trades Trade[]
+}
+model Order{
+  id String  @id @default(cuid())
+  userId String
+  marketId String 
+  user User @relation(fields: [userId], references: [id])
+  type OrderType
+  side OrderSide
+  positionSide PositionSide
+  orderPrice Decimal
+  quantity Decimal
+  leverage Int
+  margin Decimal
+  status OrderStatus
+  filledQuantity Decimal @default(0)
+  remainingQuantity Decimal 
+  orderCost Decimal
+  orderValue Decimal
+  // market Market @relation(fields: [marketId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+enum OrderType{
+  Market
+  Limit
+}
+enum OrderSide{
+  BUY
+  SELL
+}
+enum PositionSide{
+  LONG 
+  SHORT
+}
+enum OrderStatus{
+  PENDING
+  PARTIALLY_FAILED
+  FILLED
+  CANCELLED
+}
+model Position{
+  id String @id @default(cuid())
+  userId String 
+  user User @relation(fields: [userId], references: [id])
+  marketId String
+  side PositionSide
+  quantity Decimal
+  value Int
+  entryPrice Decimal
+  markPrice Decimal
+  liquidationPrice Decimal
+  initialMargin Decimal
+  maintainenceMargin Decimal
+  unrealizedPnl Decimal
+  realizedPnl Decimal
+  market Market @relation(fields: [marketId], references: [id])
+}
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+}
+
+model Wallet {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+
+  availableBalance Decimal  @default(0)
+  lockedBalance    Decimal  @default(0)
+
+  user User @relation(fields: [userId], references: [id])
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id        String @id @default(cuid())
+
+  walletId  String
+  amount    Decimal
+
+  type      TransactionType
+
+  createdAt DateTime @default(now())
+
+  wallet Wallet @relation(fields: [walletId], references: [id])
+}
+model Trade{
+  id String @id
+  marketId String
+  market Market @relation(fields: [marketId], references: [id])
+  buyerId Int
+  sellerId Int
+  buyerOrderId Int
+  sellerOrderId Int
+  price Decimal
+  quantity Decimal
+  createdAt DateTime @default(now())
+}
+model LedgerEntry {
+  id Int @id @default(autoincrement())
+
+  walletId Int
+  amount Decimal
+  type String
+
+  createdAt DateTime @default(now())
+}
+model OrderBook{
+  id Int @id 
+  type String
+  price Decimal
+  size Decimal
+  totalSize Decimal
+}
+// model MatchingEngine{
+
+// }

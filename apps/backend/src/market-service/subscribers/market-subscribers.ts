@@ -11,7 +11,7 @@ export class MarketSubscriber implements OnModuleInit {
     ){}
 
     async onModuleInit() {
-  console.log('MARKET SUBSCRIBER STARTED');
+  // console.log('MARKET SUBSCRIBER STARTED');
 
   const subscriber = this.redisService.subscriber;
 
@@ -22,7 +22,7 @@ export class MarketSubscriber implements OnModuleInit {
   subscriber.on(
     'pmessage',
     (_pattern, channel, message) => {
-      console.log('MESSAGE RECEIVED', channel, message);
+      // console.log('MESSAGE RECEIVED', channel, message);
 
       const payload = JSON.parse(message);
       const actualPayload = JSON.parse(payload)
@@ -33,11 +33,11 @@ export class MarketSubscriber implements OnModuleInit {
         actualPayload.price,
       );
 
-      console.log(
-        'CACHE UPDATED',
-        actualPayload.symbol,
-        actualPayload.price,
-      );
+      // console.log(
+      //   'CACHE UPDATED',
+      //   actualPayload.symbol,
+      //   actualPayload.price,
+      // );
     },
   );
 }

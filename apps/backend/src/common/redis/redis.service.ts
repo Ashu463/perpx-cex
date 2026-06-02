@@ -5,6 +5,7 @@ import Redis from 'ioredis';
 export class RedisService {
   public readonly publisher: Redis;
   public readonly subscriber: Redis;
+  public readonly client: Redis;
 
   constructor() {
     this.publisher = new Redis({
@@ -22,7 +23,7 @@ export class RedisService {
     channel: string,
     payload: unknown,
   ) {
-    console.log('REDIS PUBLISH INPUT', payload);
+    // console.log('REDIS PUBLISH INPUT', payload);
     await this.publisher.publish(
       channel,
       JSON.stringify(payload),
@@ -33,5 +34,12 @@ export class RedisService {
     pattern: string,
   ) {
     return this.subscriber.psubscribe(pattern);
+  }
+
+  async addToStream(
+    stream: string, 
+    payload: Record<string, any>
+  ){
+    return this.client.xadd(stream, '*', 'data', JSON.stringify(payload))
   }
 }

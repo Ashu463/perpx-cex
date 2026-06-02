@@ -75,7 +75,7 @@ enum PositionSide{
 }
 enum OrderStatus{
   PENDING
-  PARTIALLY_FAILED
+  PARTIALLY_FIILED
   FILLED
   CANCELLED
 }

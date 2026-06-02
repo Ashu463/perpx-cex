@@ -1,0 +1,5 @@
+export enum OrderEvents {
+  ORDER_CREATED = 'ORDER_CREATED',
+  ORDER_CANCEL_REQUESTED =
+    'ORDER_CANCEL_REQUESTED',
+}

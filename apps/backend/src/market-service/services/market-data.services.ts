@@ -7,9 +7,7 @@ import { RedisService } from "../../common/redis/redis.service";
 export class MarketDataService implements OnModuleInit {
     constructor(
   private readonly redisService: RedisService,
-) {
-  console.log('redisService', redisService);
-}
+) {}
   private ws: WebSocket
   async onModuleInit() {
     this.connectToBinance();
@@ -21,14 +19,14 @@ export class MarketDataService implements OnModuleInit {
     this.ws = new WebSocket(url)
 
     this.ws.on('open', () => {
-        console.log('Connected to Binance')
+        // console.log('Connected to Binance')
     })
     this.ws.on('message', (data: any) => {
         this.handleMessage(data.toString())
         // console.log('message recieved ', data)
     })
     this.ws.on('error', (err: any) => {
-        console.log('error occurred ', err)
+        // console.log('error occurred ', err)
     })
     this.ws.on('close', () =>{
         console.log('connection closed')
@@ -61,6 +59,6 @@ export class MarketDataService implements OnModuleInit {
         JSON.stringify(payload),
     );
 
-    console.log('published', payload);
+    // console.log('published', payload);
     }
 }

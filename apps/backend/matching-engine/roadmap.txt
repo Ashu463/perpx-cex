@@ -1,0 +1,86 @@
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+
+	// ==========================================
+	// BOOT ENGINE
+	// ==========================================
+
+	fmt.Println("Starting Matching Engine...")
+
+	// TODO:
+	// Create Engine instance
+	// Engine should hold:
+	// - OrderBooks
+	// - Positions
+	// - Balances
+	// - Mark Prices
+
+	// ==========================================
+	// REDIS
+	// ==========================================
+
+	// TODO:
+	// Create Redis client
+
+	// TODO:
+	// Verify Redis connection
+
+	// ==========================================
+	// RECOVERY
+	// ==========================================
+
+	// TODO:
+	// Load latest snapshot
+	// Restore orderbooks
+	// Restore balances
+	// Restore positions
+
+	// ==========================================
+	// BACKGROUND SERVICES
+	// ==========================================
+
+	// TODO:
+	// Start Snapshot Service
+	// Runs every 15 minutes
+
+	// TODO:
+	// Start Mark Price Poller
+	// Updates mark prices
+
+	// TODO:
+	// Start Liquidation Engine
+	// Phase 2
+
+	// ==========================================
+	// INPUT PIPELINE
+	// ==========================================
+
+	// TODO:
+	// Create Redis Consumer Group
+
+	// TODO:
+	// Start Consumer Loop
+	//
+	// order_submissions
+	//        ↓
+	//     Router
+	//        ↓
+	// OrderBook
+	//        ↓
+	//  Matching
+	//        ↓
+	// trade_results
+	//
+	// market_updates
+
+	// ==========================================
+	// BLOCK FOREVER
+	// ==========================================
+
+	select {}
+}

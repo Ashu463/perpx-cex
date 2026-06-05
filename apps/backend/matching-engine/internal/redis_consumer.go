@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"matching-engine/internal/models"
 
 	"github.com/redis/go-redis/v9"
@@ -57,8 +58,19 @@ func StartConsumer(
 
 					Price: price,
 
-					Quantity: qty,
+					Quantity:          qty,
+					RemainingQuantity: qty,
 				}
+
+				fmt.Println("\n==========================")
+				fmt.Println("ORDER RECEIVED")
+				fmt.Println("OrderID :", order.OrderID)
+				fmt.Println("UserID  :", order.UserID)
+				fmt.Println("Market  :", order.MarketID)
+				fmt.Println("Side    :", order.Side)
+				fmt.Println("Price   :", order.Price)
+				fmt.Println("Qty     :", order.Quantity)
+				fmt.Println("==========================")
 
 				eng.ProcessOrder(
 					order,

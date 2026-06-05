@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/google/btree"
 )
 
@@ -17,6 +19,14 @@ type OrderBook struct {
 	Asks *AskTree
 }
 
+func NewOrderBook() *OrderBook {
+
+	return &OrderBook{
+		Bids: NewBidTree(),
+		Asks: NewAskTree(),
+	}
+}
+
 func NewBidTree() *BidTree {
 
 	return &BidTree{
@@ -27,7 +37,11 @@ func NewBidTree() *BidTree {
 func (b *BidTree) Insert(
 	order *Order,
 ) {
-
+	fmt.Printf(
+		"[BID INSERT] price=%s order=%s\n",
+		order.Price.String(),
+		order.OrderID,
+	)
 	level := &PriceLevel{
 		Price: order.Price,
 	}
@@ -94,7 +108,11 @@ func NewAskTree() *AskTree {
 func (a *AskTree) Insert(
 	order *Order,
 ) {
-
+	fmt.Printf(
+		"[ASK INSERT] price=%s order=%s\n",
+		order.Price.String(),
+		order.OrderID,
+	)
 	level := &PriceLevel{
 		Price: order.Price,
 	}
@@ -149,4 +167,64 @@ func (a *AskTree) PopBestAskOrder() *Order {
 	}
 
 	return order
+}
+func (o *OrderBook) Print(MarketID string) {
+
+	fmt.Println("\n======================")
+	fmt.Println("ORDERBOOK - ", MarketID)
+	fmt.Println("======================")
+
+	fmt.Println("\nASKS")
+
+	o.Asks.Tree.Ascend(
+		func(item btree.Item) bool {
+
+			level := item.(*PriceLevel)
+
+			fmt.Printf(
+				"Price=%s Orders=%d\n",
+				level.Price.String(),
+				len(level.Orders),
+			)
+
+			for _, order := range level.Orders {
+
+				fmt.Printf(
+					"   %s Qty=%s\n",
+					order.OrderID,
+					order.Quantity.String(),
+				)
+			}
+
+			return true
+		},
+	)
+
+	fmt.Println("\nBIDS")
+
+	o.Bids.Tree.Descend(
+		func(item btree.Item) bool {
+
+			level := item.(*PriceLevel)
+
+			fmt.Printf(
+				"Price=%s Orders=%d\n",
+				level.Price.String(),
+				len(level.Orders),
+			)
+
+			for _, order := range level.Orders {
+
+				fmt.Printf(
+					"   %s Qty=%s\n",
+					order.OrderID,
+					order.Quantity.String(),
+				)
+			}
+
+			return true
+		},
+	)
+
+	fmt.Println("======================")
 }

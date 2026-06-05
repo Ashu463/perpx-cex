@@ -1,8 +1,9 @@
 package internal
 
-import "matching-engine/internal/models"
-
-// "matching-engine/internal/models"
+import (
+	"fmt"
+	"matching-engine/internal/models"
+)
 
 type Engine struct {
 	OrderBooks map[string]*models.OrderBook
@@ -24,7 +25,12 @@ func (e *Engine) ProcessOrder(
 
 	if !exists {
 
-		book = &models.OrderBook{}
+		book = models.NewOrderBook()
+
+		fmt.Println(
+			"CREATING ORDERBOOK:",
+			order.MarketID,
+		)
 
 		e.OrderBooks[order.MarketID] = book
 	}
@@ -33,4 +39,5 @@ func (e *Engine) ProcessOrder(
 		book,
 		order,
 	)
+	book.Print(order.MarketID)
 }

@@ -1,9 +1,8 @@
-package engine
+package internal
 
-import (
-	"matching-engine/internal/matching"
-	"matching-engine/internal/models"
-)
+import "matching-engine/internal/models"
+
+// "matching-engine/internal/models"
 
 type Engine struct {
 	OrderBooks map[string]*models.OrderBook
@@ -30,7 +29,7 @@ func (e *Engine) ProcessOrder(
 		e.OrderBooks[order.MarketID] = book
 	}
 
-	matching.Match(
+	Match(
 		book,
 		order,
 	)

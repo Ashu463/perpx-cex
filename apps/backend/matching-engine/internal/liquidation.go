@@ -1,4 +1,4 @@
-package liquidation
+package internal
 
 func StartLiquidationEngine() {
 

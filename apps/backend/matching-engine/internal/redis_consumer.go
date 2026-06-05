@@ -1,19 +1,17 @@
-package consumer
+package internal
 
 import (
 	"context"
+	"matching-engine/internal/models"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/shopspring/decimal"
-
-	"matching-engine/internal/engine"
-	"matching-engine/internal/models"
 )
 
 func StartConsumer(
 	ctx context.Context,
 	client *redis.Client,
-	eng *engine.Engine,
+	eng *Engine,
 ) {
 
 	for {

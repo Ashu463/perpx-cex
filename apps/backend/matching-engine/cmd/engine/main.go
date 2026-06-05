@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
+	"matching-engine/internal"
 
 	"github.com/redis/go-redis/v9"
-
-	"matching-engine/internal/consumer"
-	"matching-engine/internal/engine"
 )
 
 // for starting multiple parallel go routines
@@ -20,9 +18,9 @@ func main() {
 		},
 	)
 
-	eng := engine.NewEngine()
+	eng := internal.NewEngine()
 	// #TODO: do this by go routines
-	consumer.StartConsumer(
+	internal.StartConsumer(
 		ctx,
 		client,
 		eng,

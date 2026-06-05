@@ -1,4 +1,4 @@
-package events
+package internal
 
 import (
 	"matching-engine/internal/models"

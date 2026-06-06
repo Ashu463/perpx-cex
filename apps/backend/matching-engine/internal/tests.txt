@@ -1,0 +1,57 @@
+# EXACT MATCH
+
+XADD order_submissions * orderId buy1 userId buyer1 marketId BTCUSDT side BUY price 100 quantity 5
+XADD order_submissions * orderId sell1 userId seller1 marketId BTCUSDT side SELL price 100 quantity 5
+
+
+# BUY SMALLER THAN ASK
+
+XADD order_submissions * orderId ask1 userId seller1 marketId BTCUSDT side SELL price 100 quantity 10
+XADD order_submissions * orderId buy1 userId buyer1 marketId BTCUSDT side BUY price 100 quantity 3
+
+
+# BUY LARGER THAN ASK
+
+XADD order_submissions * orderId ask1 userId seller1 marketId BTCUSDT side SELL price 100 quantity 3
+XADD order_submissions * orderId buy1 userId buyer1 marketId BTCUSDT side BUY price 100 quantity 10
+
+
+# MULTI LEVEL SWEEP
+
+XADD order_submissions * orderId ask1 userId seller1 marketId BTCUSDT side SELL price 100 quantity 2
+XADD order_submissions * orderId ask2 userId seller2 marketId BTCUSDT side SELL price 101 quantity 3
+XADD order_submissions * orderId ask3 userId seller3 marketId BTCUSDT side SELL price 102 quantity 4
+
+XADD order_submissions * orderId buy1 userId buyer1 marketId BTCUSDT side BUY price 105 quantity 8
+
+
+# NO MATCH
+
+XADD order_submissions * orderId buy1 userId buyer1 marketId BTCUSDT side BUY price 100 quantity 5
+XADD order_submissions * orderId sell1 userId seller1 marketId BTCUSDT side SELL price 120 quantity 5
+
+
+# FIFO
+
+XADD order_submissions * orderId buy1 userId buyer1 marketId BTCUSDT side BUY price 100 quantity 1
+XADD order_submissions * orderId buy2 userId buyer2 marketId BTCUSDT side BUY price 100 quantity 1
+XADD order_submissions * orderId buy3 userId buyer3 marketId BTCUSDT side BUY price 100 quantity 1
+
+XADD order_submissions * orderId sell1 userId seller1 marketId BTCUSDT side SELL price 100 quantity 1
+XADD order_submissions * orderId sell2 userId seller2 marketId BTCUSDT side SELL price 100 quantity 1
+XADD order_submissions * orderId sell3 userId seller3 marketId BTCUSDT side SELL price 100 quantity 1
+
+
+# SELL SWEEPING MULTIPLE BIDS
+
+XADD order_submissions * orderId bid1 userId buyer1 marketId BTCUSDT side BUY price 102 quantity 2
+XADD order_submissions * orderId bid2 userId buyer2 marketId BTCUSDT side BUY price 101 quantity 3
+XADD order_submissions * orderId bid3 userId buyer3 marketId BTCUSDT side BUY price 100 quantity 4
+
+XADD order_submissions * orderId sell1 userId seller1 marketId BTCUSDT side SELL price 99 quantity 8
+
+
+# MARKET ISOLATION
+
+XADD order_submissions * orderId btcbuy userId u1 marketId BTCUSDT side BUY price 100 quantity 1
+XADD order_submissions * orderId ethbuy userId u2 marketId ETHUSDT side BUY price 3000 quantity 1

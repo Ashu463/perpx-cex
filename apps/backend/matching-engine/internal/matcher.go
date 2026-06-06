@@ -9,7 +9,10 @@ import (
 func Match(
 	book *models.OrderBook,
 	order *models.Order,
+	engine *Engine,
+	publisher *Publisher,
 ) []models.Trade {
+	// fmt.Println("matcher called")
 
 	fmt.Println(
 		"\nMATCHING:",
@@ -79,12 +82,10 @@ func Match(
 				order.RemainingQuantity.String(),
 			)
 		}
-		return trades
-	}
+		// HandleTrades(trades) before returning from the function
 
-	// SELL ORDER
-
-	if order.Side == models.Sell {
+	} else {
+		// SELL ORDER
 
 		for order.RemainingQuantity.IsPositive() {
 			fmt.Println("inside sell loop")
@@ -158,9 +159,9 @@ func Match(
 				order.RemainingQuantity.String(),
 			)
 		}
-
-		return trades
 	}
+
+	HandleTrades(trades, engine, publisher)
 	return trades
 }
 

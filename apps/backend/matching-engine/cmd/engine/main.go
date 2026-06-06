@@ -20,11 +20,15 @@ func main() {
 
 	fmt.Println("Engine starts to listen through redis stream")
 	eng := internal.NewEngine()
+	publisher := internal.NewPublisher(client, ctx, eng)
+	fmt.Println("eng and publisher made in main")
+
 	// #TODO: do this by go routines
 	internal.StartConsumer(
 		ctx,
 		client,
 		eng,
+		publisher,
 	)
 }
 

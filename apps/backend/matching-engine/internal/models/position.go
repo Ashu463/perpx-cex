@@ -7,8 +7,6 @@ type Position struct {
 
 	MarketID string
 
-	Side PositionSide
-
 	Quantity decimal.Decimal
 
 	EntryPrice decimal.Decimal

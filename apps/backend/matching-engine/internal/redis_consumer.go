@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"matching-engine/internal/models"
+	// "time"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/shopspring/decimal"
@@ -12,8 +13,10 @@ import (
 func StartConsumer(
 	ctx context.Context,
 	client *redis.Client,
-	eng *Engine,
+	engine *Engine,
+	p *Publisher,
 ) {
+	fmt.Println("start consumer called")
 
 	for {
 
@@ -26,6 +29,7 @@ func StartConsumer(
 					"order_submissions",
 					">",
 				},
+				// Block: time.Second * 5,
 			},
 		).Result()
 
@@ -72,9 +76,7 @@ func StartConsumer(
 				fmt.Println("Qty     :", order.Quantity)
 				fmt.Println("==========================")
 
-				eng.ProcessOrder(
-					order,
-				)
+				engine.ProcessOrder(order, p)
 
 				client.XAck(
 					ctx,

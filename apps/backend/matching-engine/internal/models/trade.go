@@ -19,3 +19,6 @@ type Trade struct {
 
 	Timestamp int64
 }
+
+// XADD order_submissions * orderId ask1 userId seller1 marketId BTCUSDT side SELL price 100 quantity 5
+// XADD order_submissions * orderId buy1 userId buyer1 marketId BTCUSDT side BUY price 100 quantity 5

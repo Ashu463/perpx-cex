@@ -1,12 +1,19 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"matching-engine/internal/models"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type Engine struct {
 	OrderBooks map[string]*models.OrderBook
+
+	Balances map[string]*models.Balance
+
+	Positions map[string]map[string]*models.Position
 }
 
 func NewEngine() *Engine {
@@ -14,14 +21,40 @@ func NewEngine() *Engine {
 		OrderBooks: make(
 			map[string]*models.OrderBook,
 		),
+		Balances:  make(map[string]*models.Balance),
+		Positions: make(map[string]map[string]*models.Position),
+	}
+}
+
+type Publisher struct {
+	client *redis.Client
+	ctx    context.Context
+	engine *Engine
+
+	// Redis client
+	// Stream names
+	// PubSub channel names
+}
+
+func NewPublisher(
+	client *redis.Client,
+	ctx context.Context,
+	engine *Engine,
+) *Publisher {
+
+	return &Publisher{
+		client: client,
+		ctx:    ctx,
+		engine: engine,
 	}
 }
 
 func (e *Engine) ProcessOrder(
 	order *models.Order,
+	p *Publisher,
 ) {
-
 	book, exists := e.OrderBooks[order.MarketID]
+	// fmt.Println("Process order called")
 
 	if !exists {
 
@@ -34,10 +67,13 @@ func (e *Engine) ProcessOrder(
 
 		e.OrderBooks[order.MarketID] = book
 	}
+	fmt.Println("match called from engine")
 
 	Match(
 		book,
 		order,
+		e,
+		p,
 	)
 	book.Print(order.MarketID)
 }

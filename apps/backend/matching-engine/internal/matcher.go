@@ -6,6 +6,20 @@ import (
 	"matching-engine/internal/models"
 )
 
+// flow for matcher would be
+/*
+- run matching
+- if matches then go for the trade
+- if trade happens: could be in two cases in balances
+	- fully, lockedBalances -= tradedAmt which is margin in this case(buyer side) while for seller
+	lockedBalance -= tradedAmt and add that in avaBalance of seller(tradedAmt).
+	- partially, update balances with same above logic while keeping qty as not fully satisfied.
+	- Open and close position for buyer and seller respectively.
+
+- if no match then list up on orderBook.
+
+
+*/
 func Match(
 	book *models.OrderBook,
 	order *models.Order,
@@ -42,8 +56,11 @@ func Match(
 				Price:       bestAsk.Price,
 				Quantity:    fillQty,
 			}
-			// #TODO - trade poora krde bhai
+			// #TODO DONE - trade poora krde bhai - kr diya bhai
 			trades = append(trades, trade)
+			// update balance and positions just after appending into the trade
+			// UpdateBalances(trade, engine)
+			// UpdatePositions(trade, engine)
 			fmt.Printf(
 				"\nTRADE EXECUTED buyer=%s seller=%s price=%s qty=%s\n",
 				trade.BuyerID,
@@ -55,7 +72,7 @@ func Match(
 			// reduce quantities
 			demandedQty = demandedQty.Sub(fillQty)
 			maker.RemainingQuantity = maker.RemainingQuantity.Sub(fillQty)
-			maker.Quantity = maker.RemainingQuantity
+			// maker.Quantity = maker.RemainingQuantity
 			order.RemainingQuantity = demandedQty
 
 			// maker fully filled → remove from orderbook
@@ -74,15 +91,15 @@ func Match(
 		if demandedQty.IsPositive() {
 			fmt.Println(demandedQty, " is the demanded qty")
 			order.RemainingQuantity = demandedQty
-			order.Quantity = demandedQty
+			// order.Quantity = demandedQty
 			book.Bids.Insert(order)
 			fmt.Printf(
 				"BID INSERTED order=%s remaining=%s\n",
 				order.OrderID,
 				order.RemainingQuantity.String(),
 			)
+			fmt.Println("below bid insert logger")
 		}
-		// HandleTrades(trades) before returning from the function
 
 	} else {
 		// SELL ORDER
@@ -116,11 +133,10 @@ func Match(
 				Quantity: fillQty,
 			}
 
-			trades = append(
-				trades,
-				trade,
-			)
-
+			trades = append(trades, trade)
+			// update balance and position first
+			// UpdateBalances(trade, engine)
+			// UpdatePositions(trade, engine)
 			fmt.Printf(
 				"\nTRADE EXECUTED buyer=%s seller=%s price=%s qty=%s\n",
 				trade.BuyerID,
@@ -132,11 +148,11 @@ func Match(
 			order.RemainingQuantity =
 				order.RemainingQuantity.Sub(fillQty)
 
-			order.Quantity = order.RemainingQuantity
+			// order.Quantity = order.RemainingQuantity
 
 			maker.RemainingQuantity =
 				maker.RemainingQuantity.Sub(fillQty)
-			maker.Quantity = maker.RemainingQuantity
+			// maker.Quantity = maker.RemainingQuantity
 
 			if maker.RemainingQuantity.IsZero() {
 
@@ -160,7 +176,13 @@ func Match(
 			)
 		}
 	}
-
+	fmt.Println("above loop below bid inserted body")
+	for i := 0; i < len(trades); i++ {
+		fmt.Println("inside update loop")
+		UpdateBalances(trades[i], engine)
+		UpdatePositions(trades[i], engine)
+	}
+	fmt.Println("calling handle trades now.")
 	HandleTrades(trades, engine, publisher)
 	return trades
 }

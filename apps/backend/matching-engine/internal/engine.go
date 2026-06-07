@@ -9,10 +9,13 @@ import (
 )
 
 type Engine struct {
+	// map<marketId, orderbook>
 	OrderBooks map[string]*models.OrderBook
 
+	// map<userId, Balance table>
 	Balances map[string]*models.Balance
 
+	// map<marketId, map<userId, Positions table>>
 	Positions map[string]map[string]*models.Position
 }
 
@@ -69,6 +72,8 @@ func (e *Engine) ProcessOrder(
 	}
 	fmt.Println("match called from engine")
 
+	// udpate in memory balances here, this is the common step of all three cases,
+	SyncBalances(*order, e)
 	Match(
 		book,
 		order,

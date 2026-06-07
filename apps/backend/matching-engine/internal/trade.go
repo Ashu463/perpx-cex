@@ -57,10 +57,10 @@ func ProcessTrade(
 	)
 
 	// TODO:
-	UpdateBalances(trade, engine)
+	// UpdateBalances(trade, engine)
 
 	// TODO:
-	UpdatePositions(trade, engine)
+	// UpdatePositions(trade, engine)
 
 	// TODO: PublishTrade(trade)
 	PublishTrade(&trade, publisher)
@@ -93,82 +93,49 @@ func PublishTrade(
 		"Trade published successfully",
 	)
 }
+func SyncBalances(order models.Order, engine *Engine) {
 
-// func UpdateBalances(trade models.Trade, engine *Engine) {
-// 	fmt.Println(trade, " is the trade model")
-// 	// balance := models.Balance
+	fmt.Println(order, "is the order model")
+	user := engine.Balances[order.UserID]
 
-//		// balance to be updated on both side
-//		tradedAmt := trade.Price.Mul(trade.Quantity)
-//		// I'm trusting that the available and locked balance is checked to be enough at TS backend side, ok?
-//		// Buyer side add the locked balance and subtract from avaBalance
-//		buyer := engine.Balances[trade.BuyerID]
-//		fmt.Println(buyer, " is the buyer fetched from engine")
-//		buyer.AvailableBalance = buyer.AvailableBalance.Sub(tradedAmt)
-//		buyer.LockedBalance = buyer.LockedBalance.Add(tradedAmt)
-//		// Seller side, subtract(release) the locked balance and add it to avaBalance
-//		seller := engine.Balances[trade.SellerID]
-//		seller.AvailableBalance = seller.AvailableBalance.Add(tradedAmt)
-//		seller.LockedBalance = seller.LockedBalance.Sub(tradedAmt)
-//	}
+	if user == nil {
+		user = &models.Balance{
+			UserID:           order.UserID,
+			AvailableBalance: decimal.Zero,
+			LockedBalance:    order.Margin,
+			Equity:           decimal.Zero,
+		}
+		engine.Balances[order.UserID] = user
+		return
+	}
+	user.LockedBalance.Add(order.Margin)
+}
+
+// rewrite this update balance without taking trade as param
 func UpdateBalances(trade models.Trade, engine *Engine) {
 
-	fmt.Println(
-		trade,
-		"is the trade model",
-	)
+	fmt.Println(trade, "is the trade model")
 
 	tradedAmt := trade.Price.Mul(trade.Quantity)
 
-	// BUYER
-
-	buyer :=
-		engine.Balances[trade.BuyerID]
-
+	buyer := engine.Balances[trade.BuyerID]
 	if buyer == nil {
-
-		buyer = &models.Balance{
-			UserID:           trade.BuyerID,
-			AvailableBalance: decimal.Zero,
-			LockedBalance:    decimal.Zero,
-		}
-
-		engine.Balances[trade.BuyerID] = buyer
+		// now neither the buyer nor the seller could be nil, coz I synced every user before matching
+		fmt.Println("Buyer is nil, ", buyer)
+		return
 	}
 
-	// SELLER
-
-	seller :=
-		engine.Balances[trade.SellerID]
-
+	seller := engine.Balances[trade.SellerID]
 	if seller == nil {
-
-		seller = &models.Balance{
-			UserID: trade.SellerID,
-
-			AvailableBalance: decimal.Zero,
-
-			LockedBalance: decimal.Zero,
-		}
-
-		engine.Balances[trade.SellerID] = seller
+		fmt.Println("Seller is nil, ", seller)
+		return
 	}
 
-	fmt.Println(
-		buyer,
-		"is the buyer fetched from engine",
-	)
+	fmt.Println(buyer, "is the buyer fetched from engine")
 
-	// Buyer side
-
-	buyer.AvailableBalance = buyer.AvailableBalance.Sub(tradedAmt)
-
-	buyer.LockedBalance = buyer.LockedBalance.Add(tradedAmt)
-
-	// Seller side
+	buyer.LockedBalance = buyer.LockedBalance.Sub(tradedAmt)
 
 	seller.AvailableBalance = seller.AvailableBalance.Add(tradedAmt)
-
 	seller.LockedBalance = seller.LockedBalance.Sub(tradedAmt)
 
 	fmt.Printf(
@@ -185,11 +152,22 @@ func UpdatePositions(trade models.Trade, engine *Engine) {
 	// add position for buyer and delete position for seller
 	// #TODO: update MarkPrice, LiquidationPrice, InitialMargin, MaintainenceMargin, UnrealizedPnl, RealizedPnl
 
-	buyerPos := GetPosition(
-		trade.MarketID,
-		trade.BuyerID,
-		engine,
-	)
+	fmt.Println("Positions, ", trade.MarketID)
+
+	for userID, pos := range engine.Positions[trade.MarketID] {
+
+		fmt.Println(
+			"User= Qty= EntryPrice=",
+			userID,
+			pos.Quantity.String(),
+			pos.EntryPrice.String(),
+		)
+	}
+
+	fmt.Println("====================================")
+
+	buyerPos := GetPosition(trade.MarketID, trade.BuyerID, engine)
+
 	if engine.Positions[trade.MarketID] == nil {
 
 		engine.Positions[trade.MarketID] = make(
@@ -234,23 +212,15 @@ func UpdatePositions(trade models.Trade, engine *Engine) {
 	)
 
 	if sellerPos == nil {
-
-		panic(
-			"seller position not found",
-		)
+		fmt.Println("ERROR: seller has no position to close", trade.SellerID)
+		return
 	}
 	// intially seller pos bhi toh nil hi hogi ya fer order pdte hi yeh position and balance update krni hogi
 	// toh fix that thing(update of balance and position just after the order creation) pehle then test
-	sellerPos.Quantity =
-		sellerPos.Quantity.Sub(
-			trade.Quantity,
-		)
+	sellerPos.Quantity = sellerPos.Quantity.Sub(trade.Quantity)
 
 	if sellerPos.Quantity.IsZero() {
-		delete(
-			engine.Positions[trade.MarketID],
-			trade.SellerID,
-		)
+		delete(engine.Positions[trade.MarketID], trade.SellerID)
 	}
 }
 

@@ -55,3 +55,24 @@ XADD order_submissions * orderId sell1 userId seller1 marketId BTCUSDT side SELL
 
 XADD order_submissions * orderId btcbuy userId u1 marketId BTCUSDT side BUY price 100 quantity 1
 XADD order_submissions * orderId ethbuy userId u2 marketId ETHUSDT side BUY price 3000 quantity 1
+
+
+# Test cases for testing trade and udpated balance and positions 
+XADD order_submissions * orderId buy1 userId buyer1 marketId BTCUSDT side BUY price 100 quantity 5 margin 100
+
+XADD order_submissions * orderId sell1 userId seller1 marketId BTCUSDT side SELL price 100 quantity 5 margin 100
+
+test#2
+XADD order_submissions * orderId ask1 userId seller1 marketId BTCUSDT side SELL price 100 quantity 10 margin 100
+
+XADD order_submissions * orderId buy1 userId buyer1 marketId BTCUSDT side BUY price 100 quantity 3 margin 100
+
+test#3
+XADD order_submissions * orderId ask1 userId seller1 marketId BTCUSDT side SELL price 100 quantity 3 margin 100
+
+XADD order_submissions * orderId buy1 userId buyer1 marketId BTCUSDT side BUY price 100 quantity 10 margin 100
+
+test#4
+XADD order_submissions * orderId ask1 userId seller1 marketId BTCUSDT side SELL price 100 quantity 5 margin 100
+
+XADD order_submissions * orderId buy1 userId buyer1 marketId BTCUSDT side BUY price 100 quantity 5 margin 100

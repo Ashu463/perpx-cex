@@ -49,6 +49,8 @@ func StartConsumer(
 					msg.Values["quantity"].(string),
 				)
 
+				margin, _ := decimal.NewFromString(msg.Values["margin"].(string))
+
 				order := &models.Order{
 					OrderID: msg.Values["orderId"].(string),
 
@@ -64,6 +66,7 @@ func StartConsumer(
 
 					Quantity:          qty,
 					RemainingQuantity: qty,
+					Margin:            margin,
 				}
 
 				fmt.Println("\n==========================")

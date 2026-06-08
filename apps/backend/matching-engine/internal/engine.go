@@ -70,9 +70,9 @@ func (e *Engine) ProcessOrder(
 
 		e.OrderBooks[order.MarketID] = book
 	}
-	fmt.Println("match called from engine")
 
 	// udpate in memory balances here, this is the common step of all three cases,
+	fmt.Println("sync balance called from engine")
 	SyncBalances(*order, e)
 	Match(
 		book,

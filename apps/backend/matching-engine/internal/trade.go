@@ -94,8 +94,7 @@ func PublishTrade(
 	)
 }
 func SyncBalances(order models.Order, engine *Engine) {
-
-	fmt.Println(order, "is the order model")
+	fmt.Println("Inside sync balance")
 	user := engine.Balances[order.UserID]
 
 	if user == nil {
@@ -108,35 +107,39 @@ func SyncBalances(order models.Order, engine *Engine) {
 		engine.Balances[order.UserID] = user
 		return
 	}
+	fmt.Println("Balacnes synced")
+
 	user.LockedBalance.Add(order.Margin)
 }
 
 // rewrite this update balance without taking trade as param
 func UpdateBalances(trade models.Trade, engine *Engine) {
 
-	fmt.Println(trade, "is the trade model")
+	fmt.Println(trade, "is the trade model and udpate balance is called")
 
 	tradedAmt := trade.Price.Mul(trade.Quantity)
 
 	buyer := engine.Balances[trade.BuyerID]
 	if buyer == nil {
 		// now neither the buyer nor the seller could be nil, coz I synced every user before matching
-		fmt.Println("Buyer is nil, ", buyer)
+		fmt.Println("Buyer is nil, ")
 		return
 	}
 
 	seller := engine.Balances[trade.SellerID]
 	if seller == nil {
-		fmt.Println("Seller is nil, ", seller)
+		fmt.Println("Seller is nil, ")
 		return
 	}
 
 	fmt.Println(buyer, "is the buyer fetched from engine")
 
+	// written thsi with a careful observation, here is the case backing this
+	// if we have any seller selling 3 @100, that means at initial time he must be a buyer (and let's take he bought 3@100 for easy calculation) and at that time we deducted 300 from his locked balance and now at the time of selling we again deducting from locked then adding to available, how far is this valid
+
 	buyer.LockedBalance = buyer.LockedBalance.Sub(tradedAmt)
 
 	seller.AvailableBalance = seller.AvailableBalance.Add(tradedAmt)
-	seller.LockedBalance = seller.LockedBalance.Sub(tradedAmt)
 
 	fmt.Printf(
 		"\nBUYER BALANCE: %+v\n",
@@ -203,24 +206,36 @@ func UpdatePositions(trade models.Trade, engine *Engine) {
 
 	buyerPos.Quantity = buyerPos.Quantity.Add(trade.Quantity)
 
-	// seller side
+	sellerPos := GetPosition(trade.MarketID, trade.SellerID, engine)
 
-	sellerPos := GetPosition(
-		trade.MarketID,
-		trade.SellerID,
-		engine,
-	)
+	if trade.SellerSide == "LONG" {
+		// closing a LONG — must exist
+		if sellerPos == nil {
+			fmt.Println("ERROR: no LONG position to close for", trade.SellerID)
+			return
+		}
+		sellerPos.Quantity = sellerPos.Quantity.Sub(trade.Quantity)
+		if sellerPos.Quantity.IsZero() {
+			delete(engine.Positions[trade.MarketID], trade.SellerID)
+		}
 
-	if sellerPos == nil {
-		fmt.Println("ERROR: seller has no position to close", trade.SellerID)
-		return
-	}
-	// intially seller pos bhi toh nil hi hogi ya fer order pdte hi yeh position and balance update krni hogi
-	// toh fix that thing(update of balance and position just after the order creation) pehle then test
-	sellerPos.Quantity = sellerPos.Quantity.Sub(trade.Quantity)
+	} else {
+		// opening a SHORT — create if nil
+		if sellerPos == nil {
+			sellerPos = &models.Position{
+				UserID:     trade.SellerID,
+				MarketID:   trade.MarketID,
+				Quantity:   decimal.Zero,
+				EntryPrice: decimal.Zero,
+			}
+			engine.Positions[trade.MarketID][trade.SellerID] = sellerPos
+		}
 
-	if sellerPos.Quantity.IsZero() {
-		delete(engine.Positions[trade.MarketID], trade.SellerID)
+		totalCost := sellerPos.EntryPrice.Mul(sellerPos.Quantity).Add(trade.Price.Mul(trade.Quantity))
+		sellerPos.Quantity = sellerPos.Quantity.Add(trade.Quantity)
+		if sellerPos.Quantity.IsPositive() {
+			sellerPos.EntryPrice = totalCost.Div(sellerPos.Quantity)
+		}
 	}
 }
 

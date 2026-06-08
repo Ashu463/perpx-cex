@@ -11,7 +11,8 @@ type Trade struct {
 	BuyerID  string
 	SellerID string
 
-	MarketID string
+	MarketID   string
+	SellerSide PositionSide
 
 	Price decimal.Decimal
 

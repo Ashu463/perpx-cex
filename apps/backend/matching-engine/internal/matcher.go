@@ -52,6 +52,7 @@ func Match(
 				SellerID:    maker.UserID,
 				BuyOrderID:  order.OrderID,
 				SellOrderID: maker.OrderID,
+				SellerSide:  maker.PositionSide,
 				MarketID:    order.MarketID,
 				Price:       bestAsk.Price,
 				Quantity:    fillQty,
@@ -89,7 +90,6 @@ func Match(
 
 		// incoming order still has remaining qty → list on orderbook
 		if demandedQty.IsPositive() {
-			fmt.Println(demandedQty, " is the demanded qty")
 			order.RemainingQuantity = demandedQty
 			// order.Quantity = demandedQty
 			book.Bids.Insert(order)
@@ -98,18 +98,15 @@ func Match(
 				order.OrderID,
 				order.RemainingQuantity.String(),
 			)
-			fmt.Println("below bid insert logger")
 		}
 
 	} else {
 		// SELL ORDER
 
 		for order.RemainingQuantity.IsPositive() {
-			fmt.Println("inside sell loop")
 			bestBid := book.Bids.BestBid()
 
 			if bestBid == nil || bestBid.Price.LessThan(order.Price) {
-				fmt.Println("inside bid nil")
 				break
 			}
 
@@ -126,8 +123,8 @@ func Match(
 
 				BuyOrderID:  maker.OrderID,
 				SellOrderID: order.OrderID,
-
-				MarketID: order.MarketID,
+				SellerSide:  maker.PositionSide,
+				MarketID:    order.MarketID,
 
 				Price:    bestBid.Price,
 				Quantity: fillQty,
@@ -176,13 +173,10 @@ func Match(
 			)
 		}
 	}
-	fmt.Println("above loop below bid inserted body")
 	for i := 0; i < len(trades); i++ {
-		fmt.Println("inside update loop")
 		UpdateBalances(trades[i], engine)
 		UpdatePositions(trades[i], engine)
 	}
-	fmt.Println("calling handle trades now.")
 	HandleTrades(trades, engine, publisher)
 	return trades
 }

@@ -190,9 +190,9 @@ func (o *OrderBook) Print(MarketID string) {
 			for _, order := range level.Orders {
 
 				fmt.Printf(
-					"   %s Qty=%s\n",
+					"   %s Remaining Quantity=%s\n",
 					order.OrderID,
-					order.Quantity.String(),
+					order.RemainingQuantity.String(),
 				)
 			}
 
@@ -216,9 +216,9 @@ func (o *OrderBook) Print(MarketID string) {
 			for _, order := range level.Orders {
 
 				fmt.Printf(
-					"   %s Qty=%s\n",
+					"   %s Remaining Quantity=%s\n",
 					order.OrderID,
-					order.Quantity.String(),
+					order.RemainingQuantity.String(),
 				)
 			}
 
